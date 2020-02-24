@@ -26,10 +26,10 @@ flog.threshold(DEBUG)
 
 flog.debug("Install and load the DESeq2 package")
 
-if (!requireNamespace("BiocManager", quietly = TRUE))
-  install.packages("BiocManager")
-BiocManager::install("DESeq2")
-suppressPackageStartupMessages(library(DESeq2))
+# if (!requireNamespace("BiocManager", quietly = TRUE))
+#   install.packages("BiocManager")
+# BiocManager::install("DESeq2")
+# suppressPackageStartupMessages(library(DESeq2))
 
 
 flog.debug("Setting up working directory for the analysis")
@@ -64,18 +64,18 @@ new_colname <- c("gene_id",
 colnames(DF) <- new_colname
 
 # exporting data frame
-write.csv(DF, "cts.csv", row.names = FALSE)
+write.csv(DF, file.path(proj.dir, "data", "cts.csv"), row.names = FALSE)
 
 # loading data on experimental design
-coldata <- read_excel("coldata.xlsx")
+coldata <- read_excel(file.path(data.dir, "coldata.xlsx"))
 
 # exporting data frame
-write.csv(coldata, "coldata.csv", row.names = FALSE)
+write.csv(coldata, file.path(proj.dir, "data", "coldata.csv"), row.names = FALSE)
 
 # loading data frames for DESeq2 analysis
-cts <- as.matrix(read.csv("cts.csv", row.names = 1))
+cts <- as.matrix(read.csv(file.path(proj.dir, "data", "cts.csv"), row.names = 1))
 
-coldata <- read.csv("coldata.csv", row.names = 1)
+coldata <- read.csv(file.path(proj.dir, "data", "coldata.csv"), row.names = 1)
 coldata$batch <- as.factor(coldata$batch)
 coldata <- coldata[, c("batch", "condition")]
 
@@ -87,17 +87,18 @@ all(rownames(coldata) %in% colnames(cts))
 cts <- cts[, rownames(coldata)]
 all(rownames(coldata) == colnames(cts))
 
+
 # removed columns for reanalysis
 
 DF2 <- DF[, -c(2,3,6,14)]
 
-write.csv(DF2, "cts2.csv", row.names = FALSE)
+write.csv(DF2, file.path(data.dir, "cts2.csv"), row.names = FALSE)
 
 cts2 <- as.matrix(read.csv("cts2.csv", row.names = 1))
 
 coldata2 <- coldata[-c(1,2,5,13),]
 
-write.csv(coldata2, "coldata2.csv", row.names = TRUE)
+write.csv(coldata2, file.path(data.dir, "coldata2.csv"), row.names = TRUE)
 
 
 # confirming coherence
